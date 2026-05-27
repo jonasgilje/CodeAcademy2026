@@ -21,18 +21,19 @@ Console.WriteLine("Connected to RabbitMQ");
 
 // Create a channel and declare the queue
 using var channel = await connection.CreateChannelAsync();
-await channel.ExchangeDeclareAsync(exchange: "idem-exchange-fanout", type: ExchangeType.Fanout, durable: true, autoDelete: false, arguments: null);
-await channel.QueueDeclareAsync(queue: "idem-events", durable: true, exclusive: false, autoDelete: false, arguments: null);
+await channel.ExchangeDeclareAsync(exchange: "chat", type: ExchangeType.Fanout, durable: false, autoDelete: false, arguments: null);
+await channel.QueueDeclareAsync(queue: "chat_jonasgi", durable: true, exclusive: false, autoDelete: false, arguments: null);
+await channel.QueueBindAsync(queue: "chat_jonasgi", exchange: "chat", routingKey: string.Empty, arguments: null);
 
 // Publish messages to the queue with for loop to simulate multiple events
 for (int i = 0; i < 10; i++)
 {
-    var message = $"Idems Event {i + 1} at {DateTime.Now}";
+    var message = $"Idems Event Jonasgi Ålgård {i + 1} at {DateTime.Now}";
 
     var messageBody = JsonSerializer.Serialize(message);
     var body = Encoding.UTF8.GetBytes(messageBody);
 
-    await channel.BasicPublishAsync(exchange: "idem-exchange-fanout", routingKey: string.Empty, mandatory: true, basicProperties: new BasicProperties { Persistent = true }, body: body);
+    await channel.BasicPublishAsync(exchange: "chat", routingKey: string.Empty, mandatory: true, basicProperties: new BasicProperties { Persistent = true }, body: body);
     Console.WriteLine($"Published event: {message}");
 
     await Task.Delay(2000);

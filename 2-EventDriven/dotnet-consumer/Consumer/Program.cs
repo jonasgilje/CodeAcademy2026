@@ -22,7 +22,7 @@ Console.WriteLine("Connected to RabbitMQ");
 
 // Create a channel and declare the queue
 using var channel = await connection.CreateChannelAsync();
-await channel.QueueDeclareAsync(queue: "idem-events", durable: true, exclusive: false, autoDelete: false, arguments: null);
+await channel.QueueDeclareAsync(queue: "chat_jonasgi", durable: true, exclusive: false, autoDelete: false, arguments: null);
 
 // Set up a consumer to listen for messages
 var consumer = new AsyncEventingBasicConsumer(channel);
