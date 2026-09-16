@@ -1,12 +1,26 @@
+using Kaffebar.Models;
+using Kaffebar.Storage;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Registrer OpenAPI-tjenestene. Disse genererer spesifikasjonen
 // automatisk basert på endepunktene og typene i prosjektet (code-first).
 builder.Services.AddOpenApi();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+builder.Services.AddProblemDetails();
+builder.Services.AddSingleton<IOrderStore, InMemoryOrderStore>();
 
 var app = builder.Build();
+
+app.UseStatusCodePages();
+
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
@@ -31,8 +45,19 @@ app.MapGet("/menu", () => new[]
 .WithSummary("Hent kaffemeny")
 .WithDescription("Returnerer en liste over alle tilgjengelige kaffedrikker i kaffebaren.");
 
+
+// app.MapPost("/orders", (OrderRequest orderRequest) =>
+// {
+//     return Results.Created($"/orders/{orderRequest.CoffeeId}", new OrderResponse(Guid.NewGuid(), orderRequest.CoffeeId));
+// })
+// .WithName("PlaceOrder")
+// .WithSummary("Legg inn en bestilling")
+// .WithDescription("Legg inn en bestilling for en kaffe ved å sende en POST-forespørsel med ID-en til kaffen du ønsker å bestille.");
+
 app.Run();
 
 // DTO-er kan ligge i Program.cs når prosjektet er lite.
 // Etter hvert er det ryddig å flytte dem til egne filer i en Models-mappe.
-public record Coffee(Guid Id, string Name, decimal Price);
+
+
+
